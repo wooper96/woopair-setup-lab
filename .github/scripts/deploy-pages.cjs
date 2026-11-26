@@ -105,16 +105,6 @@ async function deployPages(github, context, core, uploadedId, {
 }
 
 async function deployWithRecovery(github, context, core, artifactId, options) {
-  // Disposable lab only. Simulate a terminal result without creating a first Pages deployment.
-  const liveRequest = github.request.bind(github);
-  github = { request: async (route, input) => {
-    if (route === `POST ${deployments}`) {
-      core.info("Lab simulation: returning a terminal failure for the first uploaded artifact.");
-      return { data: { id: "lab-simulated-first-attempt", page_url: "https://wooper96.github.io/woopair-setup-lab/" } };
-    }
-    if (route === `GET ${deployment}`) return { data: { status: "deployment_failed" } };
-    return liveRequest(route, input);
-  } };
   try {
     await deployPages(github, context, core, artifactId, options);
   } catch (error) {
